@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DataAccessLayer.Model.Models
+namespace BusinessLayer.Model.Models
 {
-    public class Employee : DataEntity
+    public class EmployeeInfo : BaseInfo
     {
-        public string CompanyName { get; set; }
         public string EmployeeCode { get; set; }
         public string EmployeeName { get; set; }
+        public string CompanyName { get; set; }
         public string Occupation { get; set; }
         public string EmployeeStatus { get; set; }
         public string EmailAddress { get; set; }
