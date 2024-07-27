@@ -13,5 +13,10 @@ namespace DataAccessLayer.Model.Interfaces
         Company GetByCode(string companyCode);
         DataEntity SaveCompany(Company company);
         DataEntity DeleteCompany(string company);
+
+        Task<IEnumerable<Company>> GetAllAsync();
+        Task<Company> GetByCodeAsync(string companyCode);
+        Task<DataEntity> SaveCompanyAsync(Company company);
+        Task<DataEntity> DeleteCompanyAsync(string company);
     }
 }

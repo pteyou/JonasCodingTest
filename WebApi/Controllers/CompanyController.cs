@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
 using BusinessLayer.Model.Interfaces;
@@ -20,37 +21,37 @@ namespace WebApi.Controllers
             _mapper = mapper;
         }
         // GET api/<controller>
-        public IEnumerable<CompanyDto> GetAll()
+        public async Task<IEnumerable<CompanyDto>> GetAll()
         {
-            var items = _companyService.GetAllCompanies();
+            var items = await _companyService.GetAllCompaniesAsync();
             return _mapper.Map<IEnumerable<CompanyDto>>(items);
         }
 
         // GET api/<controller>/5
-        public CompanyDto Get(string companyCode)
+        public async Task<CompanyDto> Get(string companyCode)
         {
-            var item = _companyService.GetCompanyByCode(companyCode);
+            var item = await _companyService.GetCompanyByCodeAsync(companyCode);
             return _mapper.Map<CompanyDto>(item);
         }
 
         // POST api/<controller>
-        public BaseDto Post([FromBody]CompanyDto company)
+        public async Task<BaseDto> Post([FromBody]CompanyDto company)
         {
-            var item = _companyService.CreateCompany(_mapper.Map<CompanyInfo>(company));
+            var item = await _companyService.CreateCompanyAsync(_mapper.Map<CompanyInfo>(company));
             return _mapper.Map<BaseDto>(item);
         }
 
         // PUT api/<controller>/5
-        public BaseDto Put(string companyCode, [FromBody]CompanyDto company)
+        public async Task<BaseDto> Put(string companyCode, [FromBody]CompanyDto company)
         {
-            var item = _companyService.UpdateCompany(companyCode, _mapper.Map<CompanyInfo>(company));
+            var item = await _companyService.UpdateCompanyAsync(companyCode, _mapper.Map<CompanyInfo>(company));
             return _mapper.Map<BaseDto>(item);
         }
 
         // DELETE api/<controller>/5
-        public BaseDto Delete(string companyCode)
+        public async Task<BaseDto> Delete(string companyCode)
         {
-            var item = _companyService.DeleteCompany(companyCode);
+            var item = await _companyService.DeleteCompanyAsync(companyCode);
             return _mapper.Map<BaseDto>(item);
         }
     }
