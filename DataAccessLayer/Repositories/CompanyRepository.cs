@@ -14,6 +14,23 @@ namespace DataAccessLayer.Repositories
 		    _companyDbWrapper = companyDbWrapper;
         }
 
+        public DataEntity DeleteCompany(string companyCode)
+        {
+            var result = new DataEntity
+            {
+                SiteId = string.Empty,
+                CompanyCode = string.Empty,
+            };
+            if(_companyDbWrapper.Delete(c => c.CompanyCode == companyCode))
+            {
+                result = new DataEntity
+                {
+                    CompanyCode = companyCode
+                };
+            }
+            return result;
+        }
+
         public IEnumerable<Company> GetAll()
         {
             return _companyDbWrapper.FindAll();
@@ -24,8 +41,14 @@ namespace DataAccessLayer.Repositories
             return _companyDbWrapper.Find(t => t.CompanyCode.Equals(companyCode))?.FirstOrDefault();
         }
 
-        public bool SaveCompany(Company company)
+        public DataEntity SaveCompany(Company company)
         {
+            var result = new DataEntity
+            {
+                SiteId = string.Empty,
+                CompanyCode = string.Empty,
+            };
+
             var itemRepo = _companyDbWrapper.Find(t =>
                 t.SiteId.Equals(company.SiteId) && t.CompanyCode.Equals(company.CompanyCode))?.FirstOrDefault();
             if (itemRepo !=null)
@@ -40,10 +63,25 @@ namespace DataAccessLayer.Repositories
                 itemRepo.PhoneNumber = company.PhoneNumber;
                 itemRepo.PostalZipCode = company.PostalZipCode;
                 itemRepo.LastModified = company.LastModified;
-                return _companyDbWrapper.Update(itemRepo);
+                if(_companyDbWrapper.Update(itemRepo))
+                {
+                    result = new DataEntity
+                    {
+                        SiteId = company.SiteId,
+                        CompanyCode = company.CompanyCode,
+                    };
+                }
             }
 
-            return _companyDbWrapper.Insert(company);
+            else if(_companyDbWrapper.Insert(company))
+            {
+                result = new DataEntity
+                {
+                    SiteId = company.SiteId,
+                    CompanyCode = company.CompanyCode,
+                };
+            }
+            return result;
         }
     }
 }

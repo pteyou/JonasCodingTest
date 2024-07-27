@@ -11,6 +11,7 @@ namespace DataAccessLayer.Model.Interfaces
     {
         IEnumerable<Company> GetAll();
         Company GetByCode(string companyCode);
-        bool SaveCompany(Company company);
+        DataEntity SaveCompany(Company company);
+        DataEntity DeleteCompany(string company);
     }
 }

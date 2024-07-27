@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Web.Http;
 using AutoMapper;
 using BusinessLayer.Model.Interfaces;
+using BusinessLayer.Model.Models;
+using DataAccessLayer.Model.Models;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -32,18 +34,24 @@ namespace WebApi.Controllers
         }
 
         // POST api/<controller>
-        public void Post([FromBody]string value)
+        public BaseDto Post([FromBody]CompanyDto company)
         {
+            var item = _companyService.CreateCompany(_mapper.Map<CompanyInfo>(company));
+            return _mapper.Map<BaseDto>(item);
         }
 
         // PUT api/<controller>/5
-        public void Put(int id, [FromBody]string value)
+        public BaseDto Put(string companyCode, [FromBody]CompanyDto company)
         {
+            var item = _companyService.UpdateCompany(companyCode, _mapper.Map<CompanyInfo>(company));
+            return _mapper.Map<BaseDto>(item);
         }
 
         // DELETE api/<controller>/5
-        public void Delete(int id)
+        public BaseDto Delete(string companyCode)
         {
+            var item = _companyService.DeleteCompany(companyCode);
+            return _mapper.Map<BaseDto>(item);
         }
     }
 }
