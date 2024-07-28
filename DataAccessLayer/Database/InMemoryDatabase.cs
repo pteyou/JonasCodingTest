@@ -6,28 +6,34 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DataAccessLayer.Model.Interfaces;
 using DataAccessLayer.Model.Models;
+using Microsoft.Extensions.Logging;
 
 namespace DataAccessLayer.Database
 {
 	public class InMemoryDatabase<T> : IDbWrapper<T> where T : DataEntity
 	{
 		private Dictionary<Tuple<string, string>, DataEntity> DatabaseInstance;
+		private readonly ILogger _logger;
 
-		public InMemoryDatabase()
+		public InMemoryDatabase(ILogger logger)
 		{
 			DatabaseInstance = new Dictionary<Tuple<string, string>, DataEntity>();
-		}
+			_logger = logger;
+            _logger.LogInformation("Database creation");
+        }
 
-		public bool Insert(T data)
+        public bool Insert(T data)
 		{
 			try
 			{
 				DatabaseInstance.Add(Tuple.Create(data.SiteId, data.CompanyCode), data);
+				_logger.LogInformation($"Inserted data with siteId {data.SiteId} in database");
 				return true;
 			}
-			catch
+			catch(Exception ex)
 			{
-				return false;
+                _logger.LogError($"Failed to insert data with siteId {data.SiteId} in database with error : {ex.Message}");
+                return false;
 			}
 		}
 
@@ -39,14 +45,16 @@ namespace DataAccessLayer.Database
 				{
 					DatabaseInstance.Remove(Tuple.Create(data.SiteId, data.CompanyCode));
 					Insert(data);
-					return true;
+                    _logger.LogInformation($"Updated data with siteId {data.SiteId} in database");
+                    return true;
 				}
-
-				return false;
+                _logger.LogError($"Failed to update data with siteId {data.SiteId} in database, data not found");
+                return false;
 			}
-			catch
+			catch (Exception ex)
 			{
-				return false;
+                _logger.LogError($"Failed to update data with siteId {data.SiteId} in database with error : {ex.Message}");
+                return false;
 			}
 		}
 
@@ -67,11 +75,21 @@ namespace DataAccessLayer.Database
 		{
 			try
 			{
-				return DatabaseInstance.Values.OfType<T>();
+				var result = DatabaseInstance.Values.OfType<T>();
+				if(result.Any())
+				{
+                    _logger.LogInformation($"Found data set in database");
+                }
+				else
+				{
+                    _logger.LogInformation($"No data found in database");
+                }
+                return result;
 			}
-			catch
+			catch (Exception ex)
 			{
-				return Enumerable.Empty<T>();
+                _logger.LogError($"Error in searching data in database : {ex.Message}");
+                return Enumerable.Empty<T>();
 			}
 		}
 
@@ -80,17 +98,18 @@ namespace DataAccessLayer.Database
 			try
 			{
 				var entities = FindAll();
-				var entity = entities.Where(expression.Compile());
+				var entity = entities.Where(expression.Compile()).ToList();
 				foreach (var dataEntity in entity)
 				{
 					DatabaseInstance.Remove(Tuple.Create(dataEntity.SiteId, dataEntity.CompanyCode));
 				}
-				
+				_logger.LogInformation($"Removed {entity.Count} data entities from database");
 				return true;
 			}
-			catch
+			catch (Exception ex)
 			{
-				return false;
+                _logger.LogError($"Error in deleting data from database : {ex.Message}");
+                return false;
 			}
 		}
 
@@ -99,11 +118,13 @@ namespace DataAccessLayer.Database
 			try
 			{
 				DatabaseInstance.Clear();
+				_logger.LogInformation($"Erased all the in memory database for the data type ${typeof(T)}");
 				return true;
 			}
-			catch
+			catch (Exception ex)
 			{
-				return false;
+                _logger.LogError($"Error in deleting all data from database : {ex.Message}");
+                return false;
 			}
 		}
 
